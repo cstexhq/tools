@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>cstex passgen v1.4</title>
+<meta charset="utf-8"/>
+<style type="text/css">
+table {border-collapse: collapse;}
+tr {cursor:pointer;}
+td {border:1px #000 solid;}
+table.trhover tr:hover{background-color:lightblue;}
+/****************************************/
+/* ヘッダ、フッタ固定
+/****************************************/
+.scroll-table {
+    position: absolute;
+}
+.scroll-table .scroll-table-inner {
+    height: 300px;
+    width: 550px;
+    overflow: auto;
+}
+
+.scroll-table table {
+    border-top: 1.5em solid #fff;
+    border-bottom: 1em solid #fff;
+}
+
+.scroll-table table thead tr {
+    position: absolute;
+    left: 0;
+    top: 0;
+    background-color: #FFFFFF;
+}
+</style>
+
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.0/jquery.min.js"></script>
+<script type="text/javascript">
+
+//パスワード用の変数yyyymmddを宣言
+var yyyymmdd;
+
+//本日の日付を表示(1時間に1回更新)
+function clock() {
+  //1000ミリ秒ごとに消えたり表示したりする処理
+var hiduke=new Date(); 
+
+//年・月・日を取得する
+var year = hiduke.getFullYear();
+var month = hiduke.getMonth()+1;
+var day = hiduke.getDate();
+
+var yyyymmdd = year+("0"+month).slice(-2)+("0"+day).slice(-2);
+
+var msg="本日："+year+"年"+month+"月"+day+"日";//+sec+"秒";
+document.getElementById("RealtimeClockArea").innerHTML = msg;
+
+}
+//1時間に1回更新
+setInterval('clock()', 60*60*1000);
+setTimeout('clock()', 0);
+
+window.onload = function(){
+
+//今日の日付データを変数hidukeに格納
+var now=new Date(); 
+//年・月・日を取得する
+document.getElementById("year").value = now.getFullYear();
+document.getElementById("month").value = now.getMonth()+1;
+document.getElementById("day").value = now.getDate();
+
+var year = document.getElementById("year").value;
+var month = document.getElementById("month").value;
+var day = document.getElementById("day").value;
+
+yyyymmdd= year + ("0"+ month).slice(-2)+("0"+ day).slice(-2);
+
+　//番号を自動割り振りにする
+　oTABLE = document.getElementById('tb1');
+  oTBODY = oTABLE.getElementsByTagName("TBODY")[0];
+  oTRs = oTBODY.getElementsByTagName("TR");
+	
+	//1行目から書き換える
+	for (nRow = 1; nRow < oTRs.length+1; nRow++) {
+	tb1.rows[nRow].cells[0].innerText = nRow;
+     	}
+
+}
+
+function tday(a){
+
+var y = document.getElementById("year");
+var m = document.getElementById("month");
+var d = document.getElementById("day");
+
+var t =new Date(y.value , m.value -1 , d.value);
+
+switch(a){
+case 0:
+var now=new Date();
+y.value = now.getFullYear();
+m.value = now.getMonth()+1;
+d.value = now.getDate();
+break;
+
+case -1:
+
+t.setDate(t.getDate() -1);
+
+y.value = t.getFullYear();
+m.value = t.getMonth()+1;
+d.value = t.getDate();
+
+break;
+
+case 1:
+
+t.setDate(t.getDate() +1);
+
+y.value = t.getFullYear();
+m.value = t.getMonth()+1;
+d.value = t.getDate();
+
+}
+
+//日付を変更するたびにパスワードを変更
+yyyymmdd= y.value + ("0"+ m.value).slice(-2)+("0"+ d.value).slice(-2);
+
+}
+
+//日付を直接入力した場合の入力チェック
+function checkDay(){
+
+var year = document.getElementById("year");
+var month = document.getElementById("month");
+var day = document.getElementById("day");
+
+var strDate = year.value +'/'+ month.value +'/'+ day.value ;
+var dateObj = new Date(strDate) // strDateをDateオブジェクトに変換
+
+var objStr = dateObj.getFullYear() +'/'+ (dateObj.getMonth() +1) +'/'+ dateObj.getDate();
+
+if (strDate != objStr) {
+
+alert("無効な日付です\n入力した日付は反映されていません"); 
+//テキストの内容を初期化
+//tday(0);
+
+}else{
+	//入力された日付が正しければyyyymmddを変更
+yyyymmdd= year.value + ("0"+ month.value).slice(-2)+("0"+ day.value).slice(-2);
+}
+
+}
+
+
+
+
+<!--
+var oTRs;      // TRオブジェクトリスト
+var nColId;    // ソート対象のカラムID
+var sType;     // ソート方式（n:数値、s:文字列）
+var nOrder;    // ソート方向（0:昇順、1:降順）
+
+// idで指定されるテーブルの colId番目のカラムをソートする
+// typeには n（数値）か s（文字列）のいずれかを指定する
+function sortTable(id, colId, type, order) {
+  var i, nRow, nCol;
+  var oTABLE, oTBODY, oTDs;
+  var aCells = new Array();
+  var nRowIDs = new Array();
+
+  // DOMをサポートしていなければ無視
+  if (!document.getElementById) { return; }
+
+  // カラム番号とソート方式を外部変数に覚えておく
+  nColId = colId;
+  sType = type;
+  nOrder = order;
+
+  // TR要素のリストを取り出す
+  oTABLE = document.getElementById(id);
+  oTBODY = oTABLE.getElementsByTagName("TBODY")[0];
+  oTRs = oTBODY.getElementsByTagName("TR");
+
+  // テーブルの内容を覚えておく
+  for (nRow = 0; nRow < oTRs.length; nRow++) {
+    nRowIDs[nRow] = nRow;
+    oTDs = oTRs[nRow].getElementsByTagName("*");
+    aCells[nRow] = new Array();
+    for (nCol = 0; nCol < oTDs.length; nCol++) {
+      aCells[nRow][nCol] = oTDs[nCol].firstChild.nodeValue;
+    }
+  }
+
+  // ソートする
+  nRowIDs.sort(compareRows);
+
+  // 覚えていた内容をテーブルに書き戻す
+  for (nRow = 0; nRow < oTRs.length; nRow++) {
+    oTDs = oTRs[nRow].getElementsByTagName("*");
+    for (nCol = 0; nCol < oTDs.length; nCol++) {
+      oTDs[nCol].firstChild.nodeValue = aCells[nRowIDs[nRow]][nCol];
+    }
+  }
+}
+
+// テーブルソートのための比較関数
+function compareRows(a, b) {
+  if (nOrder == 0) {
+    var sA = oTRs[b].getElementsByTagName("*")[nColId].firstChild.nodeValue;
+    var sB = oTRs[a].getElementsByTagName("*")[nColId].firstChild.nodeValue;
+  } else {
+    var sA = oTRs[a].getElementsByTagName("*")[nColId].firstChild.nodeValue;
+    var sB = oTRs[b].getElementsByTagName("*")[nColId].firstChild.nodeValue;
+  }
+  if (sType == "n") {
+    sA = eval(sA);
+    sB = eval(sB);
+  }
+  if (sA == sB) {
+    return 0;
+  } else if (sA > sB) {
+    return 1;
+  } else {
+    return -1;
+  }
+}
+
+$(function(){
+$("tr").click(function(){
+	if (this.rowIndex > 0) {
+		//value値を表示する
+		copyPWText(this.cells[1].innerText,yyyymmdd);
+		//alert(this.cells[0].abbr); 
+	}
+});
+});
+
+function checkBrowser(){
+  var result = '不明';
+  var agent = window.navigator.userAgent.toLowerCase();
+
+  //alert(agent);
+  if(agent.indexOf("trident/7") > -1){
+    result = 'IE11';
+  }else if (agent.indexOf("edg") > -1){
+    result = 'Edge';
+  }else if (agent.indexOf("chrome") > -1){
+    result = 'Chrome';
+  }else if (agent.indexOf("safari") > -1){
+    result = 'Safari';
+  }else if (agent.indexOf("opera") > -1){
+    result = 'Opera';
+  }else if (agent.indexOf("firefox") > -1){
+    result = 'Firefox';
+  }
+
+  return result;
+}
+
+function copyTextToClipboard(textVal){
+  var copyFrom = document.createElement("textarea");
+  copyFrom.textContent = textVal;
+  var bodyElm = document.getElementsByTagName("body")[0];
+  bodyElm.appendChild(copyFrom);
+  copyFrom.select();
+  var retVal = document.execCommand('copy');
+  bodyElm.removeChild(copyFrom);
+  return retVal;
+}
+
+function copyPWText(pw1,pw2){
+
+  //対象会社テキストボックス
+  document.getElementById("id_textBox1").value = pw1;
+  //結果表示テキストボックス
+  document.getElementById("id_textBox2").value = pw1+pw2;
+
+  if ((checkBrowser()=="IE11")||(checkBrowser()=="Chrome")||(checkBrowser()=="Firefox")||(checkBrowser()=="Edge")){
+    //IE11用クリップボードコピー
+    //clipboardData.setData("Text", document.forms.pwgetid.id_textBox2.value);
+    copyTextToClipboard(document.forms.pwgetid.id_textBox2.value);
+  }else{
+    var copyTarget = document.getElementById("id_textBox2"); 
+    // コピー対象のテキストを選択する 
+    copyTarget.select(); 
+    // 選択しているテキストをクリップボードにコピーする 
+    document.execCommand("Copy"); 
+  }
+
+}
+
+// -->
+
+</script>
+
+<p id="RealtimeClockArea">時間取得中</p>
+<p>
+対象日：<input type="text" style="text-align: center;" size=4 id="year" onmouseout="checkDay()">年<input type="text" style="text-align: center;" size=1 id="month" onmouseout="checkDay()">月<input style="text-align: center;" size=1 type="text" id="day" onmouseout="checkDay()">日
+</p>
+<button onclick="tday(-1)">前日</button><button onclick="tday(0)">当日</button><button onclick="tday(1)">翌日</button>
+　　　　　　　　　　　　　　　　　　　　　　　　　　　　<button onclick="location.reload(true)">リロード</button>
+<br>
+<br>
+<form id="pwgetid" name="pwgetn">
+<input type="text" name="textBox1" id="id_textBox1" value="cstex" />→
+<input type="text" name="textBox2" id="id_textBox2" disabled="disabled">：
+<input type="button" value="左記の添付用パスワード取得" 
+onClick="copyPWText(document.forms.pwgetid.id_textBox1.value, yyyymmdd )"/><br>
+</form>
+
+<br>
+<body>
+	<div class="scroll-table"><!-- 外側のDIV要素 -->
+    <div class="scroll-table-inner"><!-- 内側のDIV要素 -->
+	<table border=1 id="tb1" width=500 class="trhover">
+	<thead>
+	<tr>
+		<th><font size="2">番号<button style="width:10px;height:20px;text-align:center;" onclick="sortTable('tb1', 0, 'n', 1)">↓</button><button style="width:10px;height:20px;" onclick="sortTable('tb1', 0, 'n', 0)">↑</button></font></th>
+		<th><font size="2">短縮<button style="width:10px;height:20px;" onclick="sortTable('tb1', 1, 's', 1)">↓</button><button style="width:10px;height:20px;" onclick="sortTable('tb1', 1, 's', 0)">↑</button></font></th>
+		<th><font size="2">社名<button style="width:10px;height:20px;" onclick="sortTable('tb1', 2, 's', 1)">↓</button><button style="width:10px;height:20px;" onclick="sortTable('tb1', 2, 's', 0)">↑</button></font></th>
+	</tr>
+	</thead>
+	<tbody>
+<tr><td></td><td>cstex</td><td>CSテクノロジーズ</td></tr>
+<tr><td></td><td>comjo</td><td>コムシス情報システム</td></tr>
+<tr><td></td><td>cos</td><td>中央システム</td></tr>
+<tr><td></td><td>fsi</td><td>富士ソフト</td></tr>
+<tr><td></td><td>fst</td><td>フォーサイトシステム</td></tr>
+<tr><td></td><td>hcm</td><td>日立建機</td></tr>
+<tr><td></td><td>htics</td><td>日立産業制御ソリューションズ</td></tr>
+<tr><td></td><td>ios</td><td>アイオス</td></tr>
+<tr><td></td><td>isb</td><td>アイ・エス・ビー</td></tr>
+<tr><td></td><td>itps</td><td>ｉＴパートナーズ</td></tr>
+<tr><td></td><td>cnne</td><td>キャノン電子</td></tr>
+<tr><td></td><td>jse</td><td>日本ＳＥ</td></tr>
+<tr><td></td><td>meg</td><td>メグ </td></tr>
+<tr><td></td><td>mtcs</td><td>エムティコンサルティング</td></tr>
+<tr><td></td><td>tas</td><td>つうけんアドバンスシステムズ </td></tr>
+<tr><td></td><td>scsk</td><td>ＳＣＳＫ </td></tr>
+<tr><td></td><td>widea</td><td>wild idea </td></tr>
+<tr><td></td><td>owdg</td><td>ONE WEDGE </td></tr>
+<tr><td></td><td>alpl</td><td>アルファ・プランニング </td></tr>
+<tr><td></td><td>ebac</td><td>EBA</td></tr>
+<tr><td></td><td>cres</td><td>クレスコ</td></tr>
+<tr><td></td><td>spnt</td><td>ＳＰ</td></tr>
+<tr><td></td><td>comtn</td><td>コムシステクノ</td></tr>
+<tr><td></td><td>ccti</td><td>コアコンセプト</td></tr>
+<tr><td></td><td>cprq</td><td>コンピュータ・レスキュー</td></tr>
+<tr><td></td><td>cprt</td><td>コンピュータリピート</td></tr>
+<tr><td></td><td>dikb</td><td>大興ビジネス</td></tr>
+	</tbody>
+	</table>
+	</div>
+	</div>
+</body>
+</html>
